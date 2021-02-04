@@ -31,17 +31,52 @@ try {
   
  
 
-function convertMP3(note){
-  textToMp3.getMp3(note, function(err, binaryStream){
-    if(err){
-      console.log(err);
-      return;
-    }
-    var file = fs.createWriteStream("output.mp3"); // write it down the file
-    file.write(binaryStream);
-    file.end();
-  });
+// function convertMP3(note){
+//   textToMp3.getMp3(note, function(err, binaryStream){
+//     if(err){
+//       console.log(err);
+//       return;
+//     }
+//     var file = fs.createWriteStream("output.mp3"); // write it down the file
+//     file.write(binaryStream);
+//     file.end();
+//   });
+// }
+
+
+function createDownloadLink(blob, encoding) {
+  var url = URL.createObjectURL(blob);
+  var au = document.createElement('audio');
+  var li = document.createElement('li');
+  var link = document.createElement('a');
+  //add controls to the "audio" element 
+  au.controls = true;
+  au.src = url; //link the a element to the blob 
+  link.href = url;
+  link.download = new Date().toISOString() + '.' + encoding;
+  link.innerHTML = link.download;
+  //add the new audio and a elements to the li element 
+  li.appendChild(au);
+  li.appendChild(link); //add the li element to the ordered list 
+  recordingsList.appendChild(li);
 }
+
+function convertMP3(filename, text) {
+  var element = document.createElement('a');
+  element.setAttribute('href', 'data:audio/wav' + encodeURIComponent(audio/wav));
+  element.setAttribute('download', filename);
+
+  element.style.display = 'none';
+  document.body.appendChild(element);
+
+  element.click();
+
+  document.body.removeChild(element);
+}
+
+// // Start file download.
+// download("hello.txt","This is the content of my file :)");
+
 
   
   var noteTextarea = $('#note-textarea');
@@ -160,7 +195,7 @@ function convertMP3(note){
     // Download note
     if(target.hasClass('download-note')) {
         var content = target.closest('.note').find('.content').text();
-        convertMP3(content);
+        convertMP3("new_1",content);
         // download(content);
         // var dateTime = target.siblings('.date').text();  
         // deleteNote(dateTime);
