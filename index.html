@@ -49,6 +49,35 @@
         integrity="sha384-ygbV9kiqUc6oa4msXn9868pTtWMgiQaeYH7/t7LECLbyPA2x65Kgf80OJFdroafW"
         crossorigin="anonymous"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script>
+    <script>
+        requirejs.config({
+            //By default load any module IDs from js/lib
+            baseUrl: 'js/lib',
+            //except, if the module ID starts with "app",
+            //load it from the js/app directory. paths
+            //config is relative to the baseUrl, and
+            //never includes a ".js" extension since
+            //the paths config could be for a directory.
+            paths: {
+                app: '../voice_modulation/node_modules'
+
+            }
+        });
+
+        // Start the main app logic.
+        requirejs(['text-to-mp3', 'fs'],
+            function (textToMp3, fs) {
+                //jQuery, canvas and the app/sub module are all
+                //loaded and can be used here now.
+                // var textToMp3 = require('text-to-mp3');
+                // var fs = require('fs');
+            });
+
+    </script>
+    <!-- <script data-main="scripts/main.js" src="scripts/require.js"></script> -->
+
+    <!-- <script src="https://requirejs.org/docs/release/2.3.5/minified/require.js"></script> -->
     <!-- autoincrementing local storage -->
     <!-- <script src="store.js"></script> -->
     <script src="app.js"></script>

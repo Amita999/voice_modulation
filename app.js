@@ -1,4 +1,24 @@
-  
+// requirejs.config({
+//   //By default load any module IDs from js/lib
+//   baseUrl: 'js/lib',
+//   //except, if the module ID starts with "app",
+//   //load it from the js/app directory. paths
+//   //config is relative to the baseUrl, and
+//   //never includes a ".js" extension since
+//   //the paths config could be for a directory.
+//   paths: {
+//       app: '../app'
+//   }
+// });
+
+// // Start the main app logic.
+// requirejs(['jquery', 'canvas', 'app/sub'],
+// function   ($,        canvas,   sub) {
+//   //jQuery, canvas and the app/sub module are all
+//   //loaded and can be used here now.
+// });
+
+
 try {
     var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     var recognition = new SpeechRecognition();
@@ -9,6 +29,20 @@ try {
     $('.app').hide();
   }
   
+ 
+
+function convertMP3(note){
+  textToMp3.getMp3(note, function(err, binaryStream){
+    if(err){
+      console.log(err);
+      return;
+    }
+    var file = fs.createWriteStream("output.mp3"); // write it down the file
+    file.write(binaryStream);
+    file.end();
+  });
+}
+
   
   var noteTextarea = $('#note-textarea');
   var instructions = $('#recording-instructions');
@@ -17,8 +51,8 @@ try {
   var noteContent = '';
   
   // Get all notes from previous sessions and display them.
-  var notes = getAllNotes();
-  renderNotes(notes);
+  // var notes = getAllNotes();
+  // renderNotes(notes);
    
   // If false, the recording will stop after a few seconds of silence.
   // When true, the silence period is longer (about 15 seconds),
@@ -60,8 +94,6 @@ try {
     };
   }
   
-  
-  
  
  //input using jQuery 
   $('#start-record-btn').on('click', function(e) {
@@ -91,13 +123,16 @@ try {
     else {
       // Save recording to localStorage.
 
-      saveNote(new Date().toLocaleString(), noteContent);
+      // saveNote(new Date().toLocaleString(), noteContent);
 
       
   
       // Reset variables and update UI.
+   
+      //////change to be made here
+      // renderNotes(getAllNotes());
+      renderNotes(noteContent);
       noteContent = '';
-      renderNotes(getAllNotes());
       noteTextarea.val('');
       instructions.text('Recording saved successfully.');
     }
@@ -122,14 +157,15 @@ try {
       target.closest('.note').remove();
     }
 
-    //Download note
-    // if(target.hasClass('download-note')) {
-    //     var content = target.closest('.note').find('.content').text();
-    //     download(content);
-    //     // var dateTime = target.siblings('.date').text();  
-    //     // deleteNote(dateTime);
-    //     // target.closest('.note').remove();
-    //   }
+    // Download note
+    if(target.hasClass('download-note')) {
+        var content = target.closest('.note').find('.content').text();
+        convertMP3(content);
+        // download(content);
+        // var dateTime = target.siblings('.date').text();  
+        // deleteNote(dateTime);
+        // target.closest('.note').remove();
+      }
 
 
   });
@@ -137,8 +173,9 @@ try {
 
   
   function readOutLoud(message) {
+    var voices = window.speechSynthesis.getVoices();
       var speech = new SpeechSynthesisUtterance();
-      var voices = window.speechSynthesis.getVoices();
+     
   
     // Set the text and voice attributes.
     speech.voice = voices[3];
@@ -152,18 +189,20 @@ try {
 
   function renderNotes(notes) {
     var html = '';
-    if(notes.length) {
-      notes.forEach(function(note) {
+    if(notes) {
+      console.log("notes: ",notes);
+      // notes.forEach(function(note) {
         html+= `<li class="list-group-item note">
         <p heading>
-        <p style="margin-right: 2.5em" class="content">${note.content}</p>
+        <p style="margin-right: 2.5em" class="content">${notes}</p>
         </p>
         <button type="button" class="btn btn-outline-primary listen-note">Listen to Recording</button>
         <button type="button" class="btn btn-outline-primary delete-note" id ="delete-note">Delete </button>
         <button type="button" class="btn btn-outline-primary download-note">Download Recording</button>
       </p>
         </li>`;     
-      });
+      // } 
+      // );
     }
     else {
       html = '<li class="list-group-item"><p class="content">You don\'t have any notes yet.</p></li>';
@@ -172,26 +211,26 @@ try {
   }
   
   
-  function saveNote(dateTime, content) {
-    localStorage.setItem('note-' + dateTime, content);
-  }
+  // function saveNote(dateTime, content) {
+  //   localStorage.setItem('note-' + dateTime, content);
+  // }
   
   
-  function getAllNotes() {
-    var notes = [];
-    var key;
-    for (var i = 0; i < localStorage.length; i++) {
-      key = localStorage.key(i);
+  // function getAllNotes() {
+  //   var notes = [];
+  //   var key;
+  //   for (var i = 0; i < localStorage.length; i++) {
+  //     key = localStorage.key(i);
   
-      if(key.substring(0,5) == 'note-') {
-        notes.push({
-          date: key.replace('note-',''),
-          content: localStorage.getItem(localStorage.key(i))
-        });
-      } 
-    }
-    return notes;
-  }
+  //     if(key.substring(0,5) == 'note-') {
+  //       notes.push({
+  //         date: key.replace('note-',''),
+  //         content: localStorage.getItem(localStorage.key(i))
+  //       });
+  //     } 
+  //   }
+  //   return notes;
+  // }
   
   
   function deleteNote(dateTime) {
